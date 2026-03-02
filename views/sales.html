@@ -1,36 +1,85 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales - Revenue Tracker</title>
+    <title>Sales - RevenueTracker</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="dashboard-wrapper">
+    <div class="dashboard">
+        <!-- Sidebar -->
         <div class="sidebar">
-            <div class="sidebar-header">
-                <h3>Revenue Tracker</h3>
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <span class="logo-text">RevenueTracker</span>
             </div>
-            <nav class="sidebar-nav">
-                <a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a>
-                <a href="/products"><i class="fas fa-box"></i> Products</a>
-                <a href="/sales" class="active"><i class="fas fa-shopping-cart"></i> Sales</a>
-                <a href="/expenses"><i class="fas fa-file-invoice"></i> Expenses</a>
-                <a href="/profit-loss"><i class="fas fa-chart-line"></i> Profit & Loss</a>
-            </nav>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/products">
+                        <i class="fas fa-box"></i>
+                        <span>Products</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/sales" class="active">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Sales</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/expenses">
+                        <i class="fas fa-file-invoice"></i>
+                        <span>Expenses</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/view-records">
+                        <i class="fas fa-search"></i>
+                        <span>View Records</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/profit-loss">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Profit & Loss</span>
+                    </a>
+                </li>
+            </ul>
         </div>
 
+        <!-- Main Content -->
         <div class="main-content">
-            <div class="top-navbar">
-                <h2>Sales</h2>
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Sales</h1>
+                    <p>Record new sales and track your sales history</p>
+                </div>
+
                 <div class="user-info">
-                    <span id="username"></span>
-                    <button class="btn-logout" onclick="logout()">Logout</button>
+                    <div class="user-profile">
+                        <div class="user-avatar" id="userInitials"></div>
+                        <span class="user-name" id="displayName"></span>
+                    </div>
+                    <button class="btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
                 </div>
             </div>
 
+            <!-- Page Content -->
             <div class="content-wrapper">
                 <!-- Record Sale Form -->
                 <div class="card">
@@ -53,7 +102,10 @@
                                 <label>Total Amount</label>
                                 <input type="text" class="form-control" id="totalAmount" readonly>
                             </div>
-                            <button type="submit" class="btn btn-success">Record Sale</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i>
+                                Record Sale
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -92,7 +144,10 @@
             window.location.href = '/';
         }
 
-        document.getElementById('username').textContent = localStorage.getItem('username');
+        // Set user info (dashboard-style top bar)
+        const username = localStorage.getItem('username') || 'User';
+        document.getElementById('displayName').textContent = username;
+        document.getElementById('userInitials').textContent = username.charAt(0).toUpperCase();
 
         let products = [];
 
@@ -102,10 +157,10 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 products = await response.json();
-                
+
                 const select = document.getElementById('productSelect');
                 select.innerHTML = '<option value="">Choose a product...</option>';
-                
+
                 products.forEach(product => {
                     if (product.quantity > 0) {
                         select.innerHTML += `<option value="${product.id}" data-price="${product.price}" data-max="${product.quantity}">
@@ -124,7 +179,7 @@
         function calculateTotal() {
             const select = document.getElementById('productSelect');
             const quantity = document.getElementById('saleQuantity').value;
-            
+
             if (select.value && quantity) {
                 const price = select.options[select.selectedIndex].dataset.price;
                 const total = parseFloat(price) * parseInt(quantity);
@@ -140,7 +195,7 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const sales = await response.json();
-                
+
                 const tbody = document.getElementById('sales-body');
                 if (sales.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" class="text-center">No sales recorded yet</td></tr>';
@@ -162,7 +217,7 @@
 
         document.getElementById('saleForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const productId = document.getElementById('productSelect').value;
             const quantity = document.getElementById('saleQuantity').value;
 

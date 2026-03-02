@@ -2,769 +2,170 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - RevenueTracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-    :root {
-        --primary: #6366f1;
-        --primary-dark: #4f46e5;
-        --secondary: #8b5cf6;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --dark: #1e293b;
-        --light: #f8fafc;
-        --gray: #64748b;
-    }
-
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        background: #f1f5f9;
-        color: var(--dark);
-    }
-
-    /* Dashboard Layout */
-    .dashboard {
-        display: flex;
-        min-height: 100vh;
-    }
-
-    /* Sidebar */
-    .sidebar {
-        width: 280px;
-        background: white;
-        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
-        padding: 30px 20px;
-        position: fixed;
-        height: 100vh;
-        overflow-y: auto;
-    }
-
-    .sidebar-logo {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 40px;
-        padding: 0 10px;
-    }
-
-    .logo-icon {
-        width: 45px;
-        height: 45px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .logo-icon i {
-        font-size: 24px;
-        color: white;
-    }
-
-    .logo-text {
-        font-size: 20px;
-        font-weight: 700;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        -moz-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        color: var(--primary); /* Fallback for browsers that don't support background-clip: text */
-    }
-
-    .sidebar-menu {
-        list-style: none;
-    }
-
-    .sidebar-menu li {
-        margin-bottom: 5px;
-    }
-
-    .sidebar-menu a {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 12px 15px;
-        color: var(--gray);
-        text-decoration: none;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        font-weight: 500;
-    }
-
-    .sidebar-menu a i {
-        width: 22px;
-        font-size: 18px;
-    }
-
-    .sidebar-menu a:hover {
-        background: #f1f5f9;
-        color: var(--primary);
-    }
-
-    .sidebar-menu a.active {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white;
-        box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
-    }
-
-    /* Main Content */
-    .main-content {
-        flex: 1;
-        margin-left: 280px;
-        padding: 30px;
-    }
-
-    /* Top Bar */
-    .top-bar {
-        background: white;
-        border-radius: 20px;
-        padding: 15px 25px;
-        margin-bottom: 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .page-title h1 {
-        font-size: 24px;
-        color: var(--dark);
-        font-weight: 700;
-    }
-
-    .page-title p {
-        color: var(--gray);
-        font-size: 14px;
-        margin-top: 5px;
-    }
-
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 5px 15px 5px 5px;
-        background: #f8fafc;
-        border-radius: 50px;
-    }
-
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-        font-size: 16px;
-    }
-
-    .user-name {
-        font-weight: 600;
-        color: var(--dark);
-    }
-
-    .btn-logout {
-        padding: 8px 20px;
-        border-radius: 50px;
-        background: transparent;
-        border: 2px solid var(--danger);
-        color: var(--danger);
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .btn-logout:hover {
-        background: var(--danger);
-        color: white;
-    }
-
-    /* Welcome Section */
-    .welcome-section {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 30px;
-        padding: 40px;
-        margin-bottom: 40px;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .welcome-section::before {
-        content: '';
-        position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 200px;
-        height: 200px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-    }
-
-    .welcome-section::after {
-        content: '';
-        position: absolute;
-        bottom: -50px;
-        left: -50px;
-        width: 200px;
-        height: 200px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-    }
-
-    .welcome-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .welcome-content h2 {
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
-
-    .welcome-content p {
-        font-size: 16px;
-        opacity: 0.9;
-        max-width: 500px;
-    }
-
-    /* Quick Actions Grid */
-    .quick-actions {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 25px;
-        margin-bottom: 40px;
-    }
-
-    .action-card {
-        background: white;
-        border-radius: 25px;
-        padding: 30px;
-        text-align: center;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .action-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        transform: translateX(-100%);
-        transition: transform 0.5s ease;
-    }
-
-    .action-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 35px -10px rgba(99, 102, 241, 0.3);
-    }
-
-    .action-card:hover::before {
-        transform: translateX(0);
-    }
-
-    .action-icon {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 25px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 25px;
-        box-shadow: 0 15px 25px -8px rgba(99, 102, 241, 0.3);
-    }
-
-    .action-icon i {
-        font-size: 35px;
-        color: white;
-    }
-
-    .action-card h3 {
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--dark);
-        margin-bottom: 10px;
-    }
-
-    .action-card p {
-        color: var(--gray);
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    /* Stats Cards */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 25px;
-        margin-bottom: 40px;
-    }
-
-    .stat-card {
-        background: white;
-        border-radius: 25px;
-        padding: 25px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-    }
-
-    .stat-icon {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .stat-icon i {
-        font-size: 28px;
-        color: white;
-    }
-
-    .stat-info h4 {
-        color: var(--gray);
-        font-size: 14px;
-        font-weight: 500;
-        margin-bottom: 5px;
-    }
-
-    .stat-info .stat-value {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--dark);
-    }
-
-    /* Recent Activity */
-    .recent-activity {
-        background: white;
-        border-radius: 25px;
-        padding: 30px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-    }
-
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-    }
-
-    .section-header h3 {
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--dark);
-    }
-
-    .view-all {
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        transition: gap 0.3s ease;
-    }
-
-    .view-all:hover {
-        gap: 10px;
-    }
-
-    .activity-list {
-        list-style: none;
-    }
-
-    .activity-item {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 15px 0;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .activity-item:last-child {
-        border-bottom: none;
-    }
-
-    .activity-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--primary);
-    }
-
-    .activity-dot.sale {
-        background: var(--success);
-    }
-
-    .activity-dot.expense {
-        background: var(--warning);
-    }
-
-    .activity-content {
-        flex: 1;
-    }
-
-    .activity-title {
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 5px;
-    }
-
-    .activity-time {
-        font-size: 12px;
-        color: var(--gray);
-    }
-
-    .activity-amount {
-        font-weight: 700;
-        color: var(--success);
-    }
-
-    .activity-amount.expense {
-        color: var(--danger);
-    }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-        .quick-actions {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .sidebar {
-            width: 80px;
-            padding: 20px 10px;
-        }
-        
-        .sidebar .logo-text,
-        .sidebar-menu a span {
-            display: none;
-        }
-        
-        .main-content {
-            margin-left: 80px;
-        }
-        
-        .quick-actions {
-            grid-template-columns: 1fr;
-        }
-        
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
 </head>
+
 <body>
-    <div class="dashboard">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-logo">
-                <div class="logo-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <span class="logo-text">RevenueTracker</span>
+<div class="dashboard">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">
+                <i class="fas fa-chart-line"></i>
             </div>
-            
-            <ul class="sidebar-menu">
-                <li>
-                    <a href="/dashboard" class="active">
-                        <i class="fas fa-home"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/products">
-                        <i class="fas fa-box"></i>
-                        <span>Products</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/sales">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Sales</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/expenses">
-                        <i class="fas fa-file-invoice"></i>
-                        <span>Expenses</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/view-records">
-                        <i class="fas fa-search"></i>
-                        <span>View Records</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/profit-loss">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Profit & Loss</span>
-                    </a>
-                </li>
-            </ul>
+            <span class="logo-text">RevenueTracker</span>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Top Bar -->
-            <div class="top-bar">
-                <div class="page-title">
-                    <h1>Dashboard</h1>
-                    <p>Welcome back, <span id="username"></span>!</p>
-                </div>
-                <div class="user-info">
-                    <div class="user-profile">
-                        <div class="user-avatar" id="userInitials"></div>
-                        <span class="user-name" id="displayName"></span>
-                    </div>
-                    <button class="btn-logout" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
-                </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="/dashboard" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/products">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+            <li>
+                <a href="/sales">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Sales</span>
+                </a>
+            </li>
+            <li>
+                <a href="/expenses">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Expenses</span>
+                </a>
+            </li>
+            <li>
+                <a href="/view-records">
+                    <i class="fas fa-search"></i>
+                    <span>View Records</span>
+                </a>
+            </li>
+            <li>
+                <a href="/profit-loss">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Profit & Loss</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Dashboard</h1>
+                <p>Welcome back, <span id="welcomeName"></span></p>
             </div>
+
+            <div class="user-info">
+                <div class="user-profile">
+                    <div class="user-avatar" id="userInitials"></div>
+                    <span class="user-name" id="displayName"></span>
+                </div>
+
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+
+        <!-- PAGE CONTENT -->
+        <div class="content-wrapper">
 
             <!-- Welcome Section -->
             <div class="welcome-section">
                 <div class="welcome-content">
                     <h2>Ready to grow your business? 📈</h2>
-                    <p>Use the quick actions below to manage your products, record sales, or track expenses.</p>
+                    <p>
+                        Use the quick actions below to manage your products,
+                        record sales, or track expenses.
+                    </p>
                 </div>
             </div>
 
             <!-- Quick Actions -->
-            <h2 style="margin-bottom: 20px; color: var(--dark);">Quick Actions</h2>
+            <h2 style="margin-bottom:20px;">Quick Actions</h2>
+
             <div class="quick-actions">
+
                 <div class="action-card" onclick="window.location.href='/products'">
                     <div class="action-icon">
-                        <i class="fas fa-plus"></i>
-                    </div>
-                    <h3>Add Product</h3>
-                    <p>Create new products with prices and stock quantities</p>
-                </div>
-                
-                <div class="action-card" onclick="window.location.href='/sales'">
-                    <div class="action-icon">
-                        <i class="fas fa-cart-plus"></i>
-                    </div>
-                    <h3>Record Sale</h3>
-                    <p>Record new sales and automatically update inventory</p>
-                </div>
-                
-                <div class="action-card" onclick="window.location.href='/expenses'">
-                    <div class="action-icon">
-                        <i class="fas fa-plus-circle"></i>
-                    </div>
-                    <h3>Add Expense</h3>
-                    <p>Track business expenses like rent and salaries</p>
-                </div>
-                
-                <div class="action-card" onclick="window.location.href='/view-records'">
-                    <div class="action-icon">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <h3>View Records</h3>
-                    <p>Search and filter through all your business data</p>
-                </div>
-            </div>
-
-            <!-- Stats Overview -->
-            <h2 style="margin-bottom: 20px; color: var(--dark);">Overview</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
                         <i class="fas fa-box"></i>
                     </div>
-                    <div class="stat-info">
-                        <h4>Total Products</h4>
-                        <div class="stat-value" id="totalProducts">-</div>
-                    </div>
+                    <h3>Add Products</h3>
+                    <p>Add new products in inventory.</p>
                 </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
+
+                <div class="action-card" onclick="window.location.href='/sales'">
+                    <div class="action-icon">
                         <i class="fas fa-shopping-cart"></i>
                     </div>
-                    <div class="stat-info">
-                        <h4>Today's Sales</h4>
-                        <div class="stat-value" id="todaySales">$0</div>
-                    </div>
+                    <h3>Record Sale</h3>
+                    <p>Track customer purchases easily.</p>
                 </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
+
+                <div class="action-card" onclick="window.location.href='/expenses'">
+                    <div class="action-icon">
                         <i class="fas fa-file-invoice"></i>
                     </div>
-                    <div class="stat-info">
-                        <h4>This Month's Expenses</h4>
-                        <div class="stat-value" id="monthExpenses">$0</div>
-                    </div>
+                    <h3>Add Expense</h3>
+                    <p>Keep your expense records organized.</p>
                 </div>
+
+                <div class="action-card" onclick="window.location.href='/profit-loss'">
+                    <div class="action-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>View Reports</h3>
+                    <p>Monitor profit and loss performance.</p>
+                </div>
+
             </div>
 
-            <!-- Recent Activity -->
-            <div class="recent-activity">
-                <div class="section-header">
-                    <h3>Recent Activity</h3>
-                    <a href="/view-records" class="view-all">
-                        View All <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-                <ul class="activity-list" id="activityList">
-                    <li class="activity-item">
-                        <div class="activity-dot"></div>
-                        <div class="activity-content">
-                            <div class="activity-title">Loading recent activity...</div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
         </div>
     </div>
+</div>
 
-    <script>
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = '/';
-        }
 
-        // Set user info
-        const username = localStorage.getItem('username') || 'User';
-        document.getElementById('username').textContent = username;
-        document.getElementById('displayName').textContent = username;
-        document.getElementById('userInitials').textContent = username.charAt(0).toUpperCase();
+<script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/';
+    }
 
-        async function loadDashboardData() {
-            try {
-                // Load products count
-                const productsRes = await fetch('/api/products', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const products = await productsRes.json();
-                document.getElementById('totalProducts').textContent = products.length;
+    // Get username safely
+    const username = (localStorage.getItem('username') || 'User').trim();
 
-                // Load today's sales
-                const salesRes = await fetch('/api/sales', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const sales = await salesRes.json();
-                
-                const today = new Date().toDateString();
-                const todaySales = sales.filter(sale => new Date(sale.sale_date).toDateString() === today);
-                const todayTotal = todaySales.reduce((sum, sale) => sum + parseFloat(sale.total_amount), 0);
-                document.getElementById('todaySales').textContent = `$${todayTotal.toFixed(2)}`;
+    // Set welcome message with comma
+    document.getElementById('welcomeName').textContent = username + '!';
 
-                // Load this month's expenses
-                const expensesRes = await fetch('/api/expenses', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const expenses = await expensesRes.json();
-                
-                const currentMonth = new Date().getMonth();
-                const monthExpenses = expenses.filter(exp => new Date(exp.expense_date).getMonth() === currentMonth);
-                const monthTotal = monthExpenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
-                document.getElementById('monthExpenses').textContent = `$${monthTotal.toFixed(2)}`;
+    // Set profile section
+    document.getElementById('displayName').textContent = username;
+    document.getElementById('userInitials').textContent = username.charAt(0).toUpperCase();
 
-                // Load recent activity (last 5 items)
-                const activityList = document.getElementById('activityList');
-                const recentItems = [
-                    ...sales.slice(0, 3).map(s => ({ ...s, type: 'sale' })),
-                    ...expenses.slice(0, 2).map(e => ({ ...e, type: 'expense' }))
-                ].sort((a, b) => new Date(b.sale_date || b.expense_date) - new Date(a.sale_date || a.expense_date))
-                 .slice(0, 5);
 
-                if (recentItems.length > 0) {
-                    activityList.innerHTML = recentItems.map(item => {
-                        if (item.type === 'sale') {
-                            return `
-                                <li class="activity-item">
-                                    <div class="activity-dot sale"></div>
-                                    <div class="activity-content">
-                                        <div class="activity-title">Sale: ${item.product_name}</div>
-                                        <div class="activity-time">${new Date(item.sale_date).toLocaleString()}</div>
-                                    </div>
-                                    <div class="activity-amount">$${parseFloat(item.total_amount).toFixed(2)}</div>
-                                </li>
-                            `;
-                        } else {
-                            return `
-                                <li class="activity-item">
-                                    <div class="activity-dot expense"></div>
-                                    <div class="activity-content">
-                                        <div class="activity-title">Expense: ${item.description}</div>
-                                        <div class="activity-time">${new Date(item.expense_date).toLocaleString()}</div>
-                                    </div>
-                                    <div class="activity-amount expense">-$${parseFloat(item.amount).toFixed(2)}</div>
-                                </li>
-                            `;
-                        }
-                    }).join('');
-                } else {
-                    activityList.innerHTML = `
-                        <li class="activity-item">
-                            <div class="activity-dot"></div>
-                            <div class="activity-content">
-                                <div class="activity-title">No recent activity</div>
-                            </div>
-                        </li>
-                    `;
-                }
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        window.location.href = '/';
+    }
+</script>
 
-            } catch (error) {
-                console.error('Error loading dashboard data:', error);
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('username');
-            window.location.href = '/';
-        }
-
-        loadDashboardData();
-    </script>
 </body>
 </html>
