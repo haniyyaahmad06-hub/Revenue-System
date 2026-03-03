@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - RevenueTracker</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <span class="logo-text">RevenueTracker</span>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/products" class="active">
+                        <i class="fas fa-box"></i>
+                        <span>Products</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/sales">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Sales</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/expenses">
+                        <i class="fas fa-file-invoice"></i>
+                        <span>Expenses</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/view-records">
+                        <i class="fas fa-search"></i>
+                        <span>View Records</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/profit-loss">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Profit & Loss</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Products</h1>
+                    <p>Create and manage your inventory items</p>
+                </div>
+
+                <div class="user-info">
+                    <div class="user-profile">
+                        <div class="user-avatar" id="userInitials"></div>
+                        <span class="user-name" id="displayName"></span>
+                    </div>
+                    <button class="btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Page Content -->
+            <div class="content-wrapper">
+                <!-- Add Product Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-plus"></i> Add New Product
+                    </div>
+                    <div class="card-body">
+                        <form id="productForm">
+                            <div class="form-group">
+                                <label>Product Name</label>
+                                <input type="text" class="form-control" id="productName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Price</label>
+                                <input type="number" step="0.01" class="form-control" id="productPrice" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Quantity</label>
+                                <input type="number" class="form-control" id="productQuantity" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea class="form-control" id="productDescription" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Add Product
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Products List -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-list"></i> Product List
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table" id="productsTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Description</th>
+                                        <th>Added</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-body">
+                                    <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/';
+
+    const username = localStorage.getItem('username') || 'User';
+    document.getElementById('displayName').textContent = username;
+    document.getElementById('userInitials').textContent = username.charAt(0).toUpperCase();
+
+    let currentEditId = null;
+
+    // Fetch and display products
+    async function fetchProducts() {
+        try {
+            const response = await fetch('/api/products', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const products = await response.json();
+
+            const tbody = document.getElementById('products-body');
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No products added yet</td></tr>';
+            } else {
+                tbody.innerHTML = products.map(product => `
+                    <tr>
+                        <td>${product.id}</td>
+                        <td>${product.name}</td>
+                        <td>$${parseFloat(product.price).toFixed(2)}</td>
+                        <td>${product.quantity}</td>
+                        <td>${product.description || '-'}</td>
+                        <td>
+                            <button onclick="editProduct(${product.id}, '${product.name}', ${product.price}, ${product.quantity}, '${product.description || ''}')" 
+                                    class="btn-edit" style="background:#f59e0b; color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button onclick="deleteProduct(${product.id})" 
+                                    class="btn-delete" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // Handle form submit
+    document.getElementById('productForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const product = {
+            name: document.getElementById('productName').value,
+            price: document.getElementById('productPrice').value,
+            quantity: document.getElementById('productQuantity').value,
+            description: document.getElementById('productDescription').value
+        };
+
+        const url = currentEditId ? `/api/products/${currentEditId}` : '/api/products';
+        const method = currentEditId ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(product)
+            });
+
+            if (response.ok) {
+                alert(currentEditId ? 'Product updated!' : 'Product added!');
+                document.getElementById('productForm').reset();
+                resetForm();
+                fetchProducts();
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Error saving product');
+            }
+        } catch (error) {
+            alert('Error saving product');
+        }
+    });
+
+    // Edit product
+    function editProduct(id, name, price, quantity, description) {
+        currentEditId = id;
+        document.getElementById('productName').value = name;
+        document.getElementById('productPrice').value = price;
+        document.getElementById('productQuantity').value = quantity;
+        document.getElementById('productDescription').value = description;
+        
+        document.querySelector('.card-header').innerHTML = '<i class="fas fa-edit"></i> Edit Product';
+        document.querySelector('button[type="submit"]').textContent = 'Update Product';
+        
+        // Add cancel button
+        addCancelButton();
+    }
+
+    // Delete product
+    async function deleteProduct(id) {
+        if (!confirm('Delete this product?')) return;
+
+        try {
+            const response = await fetch(`/api/products/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                alert('Product deleted');
+                fetchProducts();
+            } else {
+                alert('Error deleting product');
+            }
+        } catch (error) {
+            alert('Error deleting product');
+        }
+    }
+
+    // Reset form
+    function resetForm() {
+        currentEditId = null;
+        document.querySelector('.card-header').innerHTML = '<i class="fas fa-plus"></i> Add New Product';
+        document.querySelector('button[type="submit"]').textContent = 'Add Product';
+        const cancelBtn = document.getElementById('cancelBtn');
+        if (cancelBtn) cancelBtn.remove();
+    }
+
+    // Add cancel button
+    function addCancelButton() {
+        let cancelBtn = document.getElementById('cancelBtn');
+        if (!cancelBtn) {
+            cancelBtn = document.createElement('button');
+            cancelBtn.id = 'cancelBtn';
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.style.marginLeft = '10px';
+            cancelBtn.style.background = '#6c757d';
+            cancelBtn.style.color = 'white';
+            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancel';
+            cancelBtn.onclick = resetForm;
+            document.querySelector('.card-body').appendChild(cancelBtn);
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        window.location.href = '/';
+    }
+
+    fetchProducts();
+</script>
+</body>
+</html>

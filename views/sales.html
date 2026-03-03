@@ -1,0 +1,339 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales - RevenueTracker</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <span class="logo-text">RevenueTracker</span>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/products">
+                        <i class="fas fa-box"></i>
+                        <span>Products</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/sales" class="active">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Sales</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/expenses">
+                        <i class="fas fa-file-invoice"></i>
+                        <span>Expenses</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/view-records">
+                        <i class="fas fa-search"></i>
+                        <span>View Records</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/profit-loss">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Profit & Loss</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1>Sales</h1>
+                    <p>Record new sales and track your sales history</p>
+                </div>
+
+                <div class="user-info">
+                    <div class="user-profile">
+                        <div class="user-avatar" id="userInitials"></div>
+                        <span class="user-name" id="displayName"></span>
+                    </div>
+                    <button class="btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Page Content -->
+            <div class="content-wrapper">
+                <!-- Record Sale Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-cart-plus"></i> Record New Sale
+                    </div>
+                    <div class="card-body">
+                        <form id="saleForm">
+                            <div class="form-group">
+                                <label>Select Product</label>
+                                <select class="form-control" id="productSelect" required>
+                                    <option value="">Choose a product...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Quantity</label>
+                                <input type="number" class="form-control" id="saleQuantity" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Total Amount</label>
+                                <input type="text" class="form-control" id="totalAmount" readonly>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i>
+                                Record Sale
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Sales List -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-history"></i> Sales History
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table" id="salesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Unit Price</th>
+                                        <th>Total Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sales-body">
+                                    <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/';
+
+    const username = localStorage.getItem('username') || 'User';
+    document.getElementById('displayName').textContent = username;
+    document.getElementById('userInitials').textContent = username.charAt(0).toUpperCase();
+
+    let currentEditId = null;
+    let products = [];
+
+    // Load products for dropdown
+    async function loadProducts() {
+        const response = await fetch('/api/products', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        products = await response.json();
+        updateProductDropdown();
+    }
+
+    function updateProductDropdown() {
+        const select = document.getElementById('productSelect');
+        select.innerHTML = '<option value="">Select Product</option>';
+        products.forEach(p => {
+            if (p.quantity > 0 || currentEditId) {
+                select.innerHTML += `<option value="${p.id}" data-price="${p.price}" data-max="${p.quantity}">
+                    ${p.name} - $${p.price} (Stock: ${p.quantity})
+                </option>`;
+            }
+        });
+    }
+
+    // Fetch and display sales
+    async function fetchSales() {
+        try {
+            const response = await fetch('/api/sales', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const sales = await response.json();
+
+            const tbody = document.getElementById('sales-body');
+            if (sales.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No sales recorded</td></tr>';
+            } else {
+                tbody.innerHTML = sales.map(sale => `
+                    <tr>
+                        <td>${new Date(sale.sale_date).toLocaleString()}</td>
+                        <td>${sale.product_name}</td>
+                        <td>${sale.quantity}</td>
+                        <td>$${parseFloat(sale.price).toFixed(2)}</td>
+                        <td>$${parseFloat(sale.total_amount).toFixed(2)}</td>
+                        <td>
+                            <button onclick="editSale(${sale.id}, ${sale.product_id}, ${sale.quantity})" 
+                                    class="btn-edit" style="background:#f59e0b; color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteSale(${sale.id})" 
+                                    class="btn-delete" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // Handle form submit
+    document.getElementById('saleForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const sale = {
+            product_id: document.getElementById('productSelect').value,
+            quantity: document.getElementById('saleQuantity').value
+        };
+
+        if (!sale.product_id) {
+            alert('Select a product');
+            return;
+        }
+
+        const url = currentEditId ? `/api/sales/${currentEditId}` : '/api/sales';
+        const method = currentEditId ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(sale)
+            });
+
+            if (response.ok) {
+                alert(currentEditId ? 'Sale updated!' : 'Sale recorded!');
+                document.getElementById('saleForm').reset();
+                document.getElementById('totalAmount').value = '';
+                resetForm();
+                loadProducts();
+                fetchSales();
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Error saving sale');
+            }
+        } catch (error) {
+            alert('Error saving sale');
+        }
+    });
+
+    // Edit sale
+    function editSale(id, productId, quantity) {
+        currentEditId = id;
+        document.getElementById('productSelect').value = productId;
+        document.getElementById('saleQuantity').value = quantity;
+        calculateTotal();
+        
+        document.querySelector('.card-header').innerHTML = '<i class="fas fa-edit"></i> Edit Sale';
+        document.querySelector('button[type="submit"]').textContent = 'Update Sale';
+        addCancelButton();
+    }
+
+    // Delete sale
+    async function deleteSale(id) {
+        if (!confirm('Delete this sale? Stock will be restored.')) return;
+
+        try {
+            const response = await fetch(`/api/sales/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                alert('Sale deleted');
+                loadProducts();
+                fetchSales();
+            } else {
+                alert('Error deleting sale');
+            }
+        } catch (error) {
+            alert('Error deleting sale');
+        }
+    }
+
+    // Calculate total
+    function calculateTotal() {
+        const select = document.getElementById('productSelect');
+        const quantity = document.getElementById('saleQuantity').value;
+        
+        if (select.value && quantity) {
+            const price = select.options[select.selectedIndex]?.dataset.price;
+            if (price) {
+                const total = parseFloat(price) * parseInt(quantity);
+                document.getElementById('totalAmount').value = `$${total.toFixed(2)}`;
+            }
+        }
+    }
+
+    document.getElementById('productSelect').addEventListener('change', calculateTotal);
+    document.getElementById('saleQuantity').addEventListener('input', calculateTotal);
+
+    // Reset form
+    function resetForm() {
+        currentEditId = null;
+        document.querySelector('.card-header').innerHTML = '<i class="fas fa-cart-plus"></i> Record New Sale';
+        document.querySelector('button[type="submit"]').textContent = 'Record Sale';
+        const cancelBtn = document.getElementById('cancelBtn');
+        if (cancelBtn) cancelBtn.remove();
+    }
+
+    function addCancelButton() {
+        let cancelBtn = document.getElementById('cancelBtn');
+        if (!cancelBtn) {
+            cancelBtn = document.createElement('button');
+            cancelBtn.id = 'cancelBtn';
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.style.marginLeft = '10px';
+            cancelBtn.style.background = '#6c757d';
+            cancelBtn.style.color = 'white';
+            cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancel';
+            cancelBtn.onclick = resetForm;
+            document.querySelector('.card-body').appendChild(cancelBtn);
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        window.location.href = '/';
+    }
+
+    loadProducts();
+    fetchSales();
+</script>
+</body>
+</html>
