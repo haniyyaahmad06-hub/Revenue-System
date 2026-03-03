@@ -108,7 +108,7 @@ body {
   align-items: center;
   justify-content: center;
 }
-.logo-icon i { font-size: 24px; color: white; }
+.logo-icon i { font-size: 24px; color: #fff; }
 .logo-text {
   font-size: 20px;
   font-weight: 800;
@@ -118,6 +118,8 @@ body {
   -webkit-text-fill-color: transparent;
   color: var(--primary); /* fallback */
 }
+
+/* Note: Non-visual refactor (formatting/comments only) */
 
 /* Modern menu */
 .sidebar-menu { list-style: none; }
@@ -710,6 +712,8 @@ table tbody tr:hover {
   padding: 0 !important;
 }
 
+/* Intentional: prevent double-padding inside dashboard layout */
+
 /* 2) Make .card look like modern dashboard sections */
 .card {
   background: var(--card-bg);
@@ -805,6 +809,6 @@ table tbody tr:hover {
 .hero-image img {
     width: 100%;
     border-radius: 24px;
-    box-shadow: 0 25px 60px rgba(99, 102, 241, 0.3);
     transition: transform 0.4s ease;
+    box-shadow: 0 25px 60px rgba(99, 102, 241, 0.3);
 }
