@@ -274,7 +274,7 @@ app.get('/api/profit-loss', authenticateToken, (req, res) => {
     let params = [req.user.id];
 
     if (month) {
-        dateFilter = 'AND MONTH(sale_date) = ? AND YEAR(sale_date) = YEAR(CURDATE())';
+        dateFilter = 'AND MONTH(sale_date) = ?';
         params.push(month);
     }
 

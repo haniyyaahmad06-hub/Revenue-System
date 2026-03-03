@@ -81,29 +81,6 @@
 
             <!-- Page Content -->
             <div class="content-wrapper">
-                <!-- Month Filter -->
-                <div class="card">
-                    <div class="card-body">
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label for="monthSelect" style="margin-bottom: 10px;">Select Month</label>
-                            <select class="form-control" id="monthSelect" style="max-width: 260px;">
-                                <option value="">All Time</option>
-                                <option value="1">January</option>
-                                <option value="2">February</option>
-                                <option value="3">March</option>
-                                <option value="4">April</option>
-                                <option value="5">May</option>
-                                <option value="6">June</option>
-                                <option value="7">July</option>
-                                <option value="8">August</option>
-                                <option value="9">September</option>
-                                <option value="10">October</option>
-                                <option value="11">November</option>
-                                <option value="12">December</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Summary Cards -->
                 <div class="profit-loss-summary">
@@ -167,58 +144,55 @@
         </div>
     </div>
 
-    <script>
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = '/';
+   <script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/';
+    }
+
+    // Set user info
+    const username = localStorage.getItem('username') || 'User';
+    document.getElementById('displayName').textContent = username;
+    document.getElementById('userInitials').textContent = username.charAt(0).toUpperCase();
+
+    async function fetchProfitLoss() {
+        try {
+            const response = await fetch('/api/profit-loss', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const data = await response.json();
+
+            // Update display
+            document.getElementById('totalSales').textContent = `$${data.total_sales.toFixed(2)}`;
+            document.getElementById('totalExpenses').textContent = `$${data.total_expenses.toFixed(2)}`;
+            document.getElementById('netProfit').textContent = `$${data.net_profit.toFixed(2)}`;
+            document.getElementById('salesRevenue').textContent = `$${data.total_sales.toFixed(2)}`;
+            document.getElementById('expenseTotal').textContent = `$${data.total_expenses.toFixed(2)}`;
+            document.getElementById('netResult').textContent = `$${data.net_profit.toFixed(2)}`;
+
+            // Update status
+            const statusDisplay = document.getElementById('statusDisplay');
+            statusDisplay.textContent = data.status === 'profit' ? 'PROFIT' : 'LOSS';
+            statusDisplay.className = `status-badge ${data.status}`;
+
+            // Update card style
+            const netProfitCard = document.getElementById('netProfitCard');
+            netProfitCard.className = `summary-card ${data.status}`;
+
+        } catch (error) {
+            console.error('Error fetching profit/loss:', error);
         }
+    }
 
-        // Set user info (dashboard-style top bar)
-        const username = localStorage.getItem('username') || 'User';
-        document.getElementById('displayName').textContent = username;
-        document.getElementById('userInitials').textContent = username.charAt(0).toUpperCase();
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        window.location.href = '/';
+    }
 
-        async function fetchProfitLoss() {
-            const month = document.getElementById('monthSelect').value;
-            const url = month ? `/api/profit-loss?month=${month}` : '/api/profit-loss';
-
-            try {
-                const response = await fetch(url, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
-
-                // Update display
-                document.getElementById('totalSales').textContent = `$${data.total_sales.toFixed(2)}`;
-                document.getElementById('totalExpenses').textContent = `$${data.total_expenses.toFixed(2)}`;
-                document.getElementById('netProfit').textContent = `$${data.net_profit.toFixed(2)}`;
-                document.getElementById('salesRevenue').textContent = `$${data.total_sales.toFixed(2)}`;
-                document.getElementById('expenseTotal').textContent = `$${data.total_expenses.toFixed(2)}`;
-                document.getElementById('netResult').textContent = `$${data.net_profit.toFixed(2)}`;
-
-                // Update status
-                const statusDisplay = document.getElementById('statusDisplay');
-                statusDisplay.textContent = data.status === 'profit' ? 'PROFIT' : 'LOSS';
-                statusDisplay.className = `status-badge ${data.status}`;
-
-                // Update card class
-                const netProfitCard = document.getElementById('netProfitCard');
-                netProfitCard.className = `summary-card ${data.status}`;
-
-            } catch (error) {
-                console.error('Error fetching profit/loss:', error);
-            }
-        }
-
-        document.getElementById('monthSelect').addEventListener('change', fetchProfitLoss);
-
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('username');
-            window.location.href = '/';
-        }
-
-        fetchProfitLoss();
-    </script>
+    // Load data on page load
+    fetchProfitLoss();
+</script>
 </body>
 </html>
