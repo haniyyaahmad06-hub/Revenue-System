@@ -986,170 +986,179 @@
     </div>
 
     <script>
-        // Navbar scroll effect
-        window.addEventListener('scroll', function() {
-            const navbar = document.getElementById('navbar');
-            if (window.scrollY > 50) {
-                navbar.style.background = 'white';
-                navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
-            } else {
-                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-                navbar.style.backdropFilter = 'blur(10px)';
-            }
-        });
+  // Navbar scroll effect
+  window.addEventListener("scroll", function () {
+    const navbar = document.getElementById("navbar");
+    if (window.scrollY > 50) {
+      navbar.style.background = "white";
+      navbar.style.boxShadow = "0 2px 20px rgba(0, 0, 0, 0.1)";
+      navbar.style.backdropFilter = ""; // optional: reset blur when solid
+    } else {
+      navbar.style.background = "rgba(255, 255, 255, 0.95)";
+      navbar.style.backdropFilter = "blur(10px)";
+      navbar.style.boxShadow = "0 2px 20px rgba(0, 0, 0, 0.1)";
+    }
+  });
 
-        // Modal functions
-        const modal = document.getElementById('authModal');
-        const loginDiv = document.getElementById('modal-login');
-        const registerDiv = document.getElementById('modal-register');
-        const alertDiv = document.getElementById('modal-alert');
+  // Modal functions
+  const modal = document.getElementById("authModal");
+  const loginDiv = document.getElementById("modal-login");
+  const registerDiv = document.getElementById("modal-register");
+  const alertDiv = document.getElementById("modal-alert");
 
-        function showLoginModal() {
-            modal.classList.add('active');
-            loginDiv.style.display = 'block';
-            registerDiv.style.display = 'none';
-            alertDiv.style.display = 'none';
-        }
+  function showLoginModal() {
+    modal.classList.add("active");
+    loginDiv.style.display = "block";
+    registerDiv.style.display = "none";
+    alertDiv.style.display = "none";
+  }
 
-        function showRegisterModal() {
-            modal.classList.add('active');
-            loginDiv.style.display = 'none';
-            registerDiv.style.display = 'block';
-            alertDiv.style.display = 'none';
-        }
+  function showRegisterModal() {
+    modal.classList.add("active");
+    loginDiv.style.display = "none";
+    registerDiv.style.display = "block";
+    alertDiv.style.display = "none";
+  }
 
-        function closeModal() {
-            modal.classList.remove('active');
-        }
+  function closeModal() {
+    modal.classList.remove("active");
+  }
 
-        function switchToLogin() {
-            loginDiv.style.display = 'block';
-            registerDiv.style.display = 'none';
-            alertDiv.style.display = 'none';
-        }
+  function switchToLogin() {
+    loginDiv.style.display = "block";
+    registerDiv.style.display = "none";
+    alertDiv.style.display = "none";
+  }
 
-        function switchToRegister() {
-            loginDiv.style.display = 'none';
-            registerDiv.style.display = 'block';
-            alertDiv.style.display = 'none';
-        }
+  function switchToRegister() {
+    loginDiv.style.display = "none";
+    registerDiv.style.display = "block";
+    alertDiv.style.display = "none";
+  }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
+  // Close modal when clicking outside
+  window.onclick = function (event) {
+    if (event.target === modal) {
+      closeModal();
+    }
+  };
 
-        // Smooth scroll for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
+  // Smooth scroll for navigation links
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute("href"));
+      if (!target) return;
+      target.scrollIntoView({ behavior: "smooth" });
+    });
+  });
 
-        // Show alert in modal
-        function showModalAlert(message, type) {
-            alertDiv.textContent = message;
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.style.display = 'block';
-            setTimeout(() => {
-                alertDiv.style.display = 'none';
-            }, 3000);
-        }
+  // Show alert in modal
+  function showModalAlert(message, type) {
+    alertDiv.textContent = message;
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.style.display = "block";
+    setTimeout(() => {
+      alertDiv.style.display = "none";
+    }, 3000);
+  }
 
-        // Login form submission
-        document.getElementById('modalLoginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('modal-login-email').value;
-            const password = document.getElementById('modal-login-password').value;
+  // Login form submission
+  document.getElementById("modalLoginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
+    const email = document.getElementById("modal-login-email").value;
+    const password = document.getElementById("modal-login-password").value;
 
-                const data = await response.json();
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-                if (response.ok) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('username', data.username);
-                    window.location.href = '/dashboard';
-                } else {
-                    showModalAlert(data.error, 'danger');
-                }
-            } catch (error) {
-                showModalAlert('An error occurred', 'danger');
-            }
-        });
+      const data = await response.json();
 
-        // Register form submission
-        document.getElementById('modalRegisterForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const username = document.getElementById('modal-reg-username').value;
-            const email = document.getElementById('modal-reg-email').value;
-            const password = document.getElementById('modal-reg-password').value;
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("username", data.username);
+        window.location.href = "/dashboard";
+      } else {
+        showModalAlert(data.error, "danger");
+      }
+    } catch (error) {
+      showModalAlert("An error occurred", "danger");
+    }
+  });
 
-            try {
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password })
-                });
+  // Register form submission
+  document.getElementById("modalRegisterForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-                const data = await response.json();
+    const username = document.getElementById("modal-reg-username").value;
+    const email = document.getElementById("modal-reg-email").value;
+    const password = document.getElementById("modal-reg-password").value;
 
-                if (response.ok) {
-                    showModalAlert('Registration successful! Please login.', 'success');
-                    setTimeout(() => {
-                        switchToLogin();
-                    }, 2000);
-                } else {
-                    showModalAlert(data.error, 'danger');
-                }
-            } catch (error) {
-                showModalAlert('An error occurred', 'danger');
-            }
-        });
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
 
-        // Check if already logged in
-        if (localStorage.getItem('token')) {
-            window.location.href = '/dashboard';
-        }
-// Highlight active section link in navbar (scroll spy)
-const sections = document.querySelectorAll("section[id], footer[id]");
-const navLinks = document.querySelectorAll(".nav-links a");
+      const data = await response.json();
 
-function setActiveNavLink() {
+      if (response.ok) {
+        showModalAlert("Registration successful! Please login.", "success");
+        setTimeout(() => {
+          switchToLogin();
+        }, 2000);
+      } else {
+        showModalAlert(data.error, "danger");
+      }
+    } catch (error) {
+      showModalAlert("An error occurred", "danger");
+    }
+  });
+
+  // Check if already logged in
+  if (localStorage.getItem("token")) {
+    window.location.href = "/dashboard";
+  }
+
+  // -------------------------------
+  // FIXED: Scroll-spy Contact issue
+  // (Keeps same behavior; adds bottom-detection fallback)
+  // -------------------------------
+  const sections = document.querySelectorAll("section[id], footer[id]");
+  const navLinks = document.querySelectorAll(".nav-links a");
+
+  function setActiveNavLink() {
     let currentId = "home";
+    const marker = 140; // point in viewport used to decide active section
 
-    sections.forEach(section => {
-        const rect = section.getBoundingClientRect();
-        // when section top is near top of viewport
-        if (rect.top <= 120 && rect.bottom >= 120) {
-            currentId = section.id;
-        }
+    sections.forEach((section) => {
+      const rect = section.getBoundingClientRect();
+      if (rect.top <= marker && rect.bottom >= marker) {
+        currentId = section.id;
+      }
     });
 
-    navLinks.forEach(link => {
-        link.classList.remove("active");
-        if (link.getAttribute("href") === `#${currentId}`) {
-            link.classList.add("active");
-        }
-    });
-}
+    // ✅ When user reaches the bottom of the page, force Contact active
+    const atBottom =
+      window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+    if (atBottom) currentId = "contact";
 
-// Run on load + scroll
-window.addEventListener("scroll", setActiveNavLink);
-window.addEventListener("load", setActiveNavLink);
-        
-    </script>
+    navLinks.forEach((link) => {
+      link.classList.remove("active");
+      if (link.getAttribute("href") === `#${currentId}`) {
+        link.classList.add("active");
+      }
+    });
+  }
+
+  window.addEventListener("scroll", setActiveNavLink);
+  window.addEventListener("load", setActiveNavLink);
+</script>
 </body>
 </html>
